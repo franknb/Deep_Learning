@@ -52,19 +52,21 @@ class Generator(nn.Module):
 
         repeat_num = int(np.log2(self.imsize)) - 3
         mult = 2 ** repeat_num # 8
-        layer1.append(SpectralNorm(nn.ConvTranspose2d(z_dim, conv_dim * mult, 4)))
+        layer1.append(SpectralNorm(nn.ConvTranspose2d(in_channels = z_dim, out_channels = conv_dim * mult, kernel_size = 4)))
         layer1.append(nn.BatchNorm2d(conv_dim * mult))
         layer1.append(nn.ReLU())
 
         curr_dim = conv_dim * mult
 
-        layer2.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
+        layer2.append(SpectralNorm(nn.ConvTranspose2d(in_channels = curr_dim, out_channels = int(curr_dim / 2), 
+                                                      kernel_size = 4, stride = 2, padding = 1)))
         layer2.append(nn.BatchNorm2d(int(curr_dim / 2)))
         layer2.append(nn.ReLU())
 
         curr_dim = int(curr_dim / 2)
 
-        layer3.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
+        layer3.append(SpectralNorm(nn.ConvTranspose2d(in_channels = curr_dim, out_channels = int(curr_dim / 2), 
+                                                      kernel_size = 4, stride = 2, padding = 1)))
         layer3.append(nn.BatchNorm2d(int(curr_dim / 2)))
         layer3.append(nn.ReLU())
 
@@ -94,8 +96,9 @@ class Generator(nn.Module):
         out=self.l2(out)
         out=self.l3(out)
         out,p1 = self.attn1(out)
-        out=self.l4(out)
-        out,p2 = self.attn2(out)
+        if self.imsize == 64: # added this line
+            out=self.l4(out)
+            out,p2 = self.attn2(out)
         out=self.last(out)
 
         return out, p1, p2
