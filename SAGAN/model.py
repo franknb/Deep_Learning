@@ -69,10 +69,13 @@ class Generator(nn.Module):
                                                       kernel_size = 4, stride = 2, padding = 1)))
         layer3.append(nn.BatchNorm2d(int(curr_dim / 2)))
         layer3.append(nn.ReLU())
+        
+        curr_dim = int(curr_dim / 2)
+        
+        self.attn1 = Self_Attn(curr_dim, 'relu')
 
         if self.imsize == 64:
             layer4 = []
-            curr_dim = int(curr_dim / 2)
             layer4.append(SpectralNorm(nn.ConvTranspose2d(curr_dim, int(curr_dim / 2), 4, 2, 1)))
             layer4.append(nn.BatchNorm2d(int(curr_dim / 2)))
             layer4.append(nn.ReLU())
@@ -87,8 +90,7 @@ class Generator(nn.Module):
         last.append(nn.Tanh())
         self.last = nn.Sequential(*last)
 
-        self.attn1 = Self_Attn( 128, 'relu')
-        self.attn2 = Self_Attn( 64,  'relu')
+        self.attn2 = Self_Attn(curr_dim,  'relu')
 
     def forward(self, z):
         p2 = 0
