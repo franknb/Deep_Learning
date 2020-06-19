@@ -91,6 +91,7 @@ class Generator(nn.Module):
         self.attn2 = Self_Attn( 64,  'relu')
 
     def forward(self, z):
+        p2 = 0
         z = z.view(z.size(0), z.size(1), 1, 1)
         out=self.l1(z)
         out=self.l2(out)
@@ -145,6 +146,7 @@ class Discriminator(nn.Module):
         self.attn2 = Self_Attn(512, 'relu')
 
     def forward(self, x):
+        p2 = 0
         out = self.l1(x)
         out = self.l2(out)
         out = self.l3(out)
